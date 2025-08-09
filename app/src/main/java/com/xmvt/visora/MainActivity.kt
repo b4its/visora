@@ -1,48 +1,60 @@
 package com.xmvt.visora
 
-import android.content.pm.PackageManager
+import Index
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.xmvt.visora.config.Routes
-import android.os.Build
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Inisialisasi database (boleh di luar Compose)
-
 
         enableEdgeToEdge()
+
         setContent {
             val navController = rememberNavController()
-            val context = LocalContext.current
-
-
-            NavHost(
-                navController = navController,
-                startDestination = Routes.MainPages  // default start
-            ) {
-                composable(Routes.DashboardPages) {
-                    Dashboard(navController)
-                }
-                composable(Routes.MainPages) {
-                    Index(navController)
-                }
-            }
-
-
+            NavGraph(navController)
         }
     }
+}
+
+@Composable
+fun NavGraph(navController: androidx.navigation.NavHostController) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.MainPages
+    ) {
+        composable(Routes.DashboardPages) {
+            DashboardPages(navController)
+        }
+        composable(Routes.MainPages) {
+            IndexWithPermission(navController)
+        }
+    }
+}
+
+// Contoh pembungkus Index dengan permission request di dalam composable
+@Composable
+fun IndexWithPermission(navController: androidx.navigation.NavHostController) {
+    // Request permission saat composable muncul
+    LaunchedEffect(Unit) {
+        requestPermissions()
+    }
+
+    Index(navController)
+}
+
+// Fungsi requestPermissions harus bisa dipanggil di sini (atau dari Index composable)
+// Jika kamu punya requestPermissions di Index, kamu bisa pindahkan LaunchedEffect ke sana
+fun requestPermissions() {
+    // Implementasi permintaan permission runtime kamu di sini
+    // Misalnya menggunakan rememberLauncherForActivityResult yang dipanggil di composable Index
+    // Kalau pake Compose, lebih baik permission request di-handle langsung di Index composable
 }
