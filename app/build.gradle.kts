@@ -60,4 +60,12 @@ dependencies {
     // Jetpack Compose integration
     implementation("androidx.navigation:navigation-compose:2.9.1")
 
+    // CameraX core, lifecycle, and view
+    implementation("androidx.camera:camera-core:1.2.3")
+    implementation("androidx.camera:camera-camera2:1.2.3")
+    implementation("androidx.camera:camera-lifecycle:1.2.3")
+    implementation("androidx.camera:camera-view:1.2.3")
+
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
+
 }
