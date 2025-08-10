@@ -57,6 +57,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation("androidx.core:core-ktx:1.10.1")
     // Jetpack Compose integration
     implementation("androidx.navigation:navigation-compose:2.9.1")
 

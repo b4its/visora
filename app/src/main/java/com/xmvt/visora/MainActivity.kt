@@ -1,15 +1,24 @@
 package com.xmvt.visora
 
 import Index
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.activity.result.contract.ActivityResultContracts
 import com.xmvt.visora.config.Routes
 
 class MainActivity : ComponentActivity() {
@@ -40,21 +49,38 @@ fun NavGraph(navController: androidx.navigation.NavHostController) {
     }
 }
 
-// Contoh pembungkus Index dengan permission request di dalam composable
 @Composable
 fun IndexWithPermission(navController: androidx.navigation.NavHostController) {
-    // Request permission saat composable muncul
-    LaunchedEffect(Unit) {
-        requestPermissions()
+    val context = LocalContext.current
+
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
     }
 
-    Index(navController)
-}
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasCameraPermission = granted
+    }
 
-// Fungsi requestPermissions harus bisa dipanggil di sini (atau dari Index composable)
-// Jika kamu punya requestPermissions di Index, kamu bisa pindahkan LaunchedEffect ke sana
-fun requestPermissions() {
-    // Implementasi permintaan permission runtime kamu di sini
-    // Misalnya menggunakan rememberLauncherForActivityResult yang dipanggil di composable Index
-    // Kalau pake Compose, lebih baik permission request di-handle langsung di Index composable
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            launcher.launch(android.Manifest.permission.CAMERA)
+        }
+    }
+
+    if (hasCameraPermission) {
+        Index(navController)
+    } else {
+        Text(
+            text = "Izin kamera diperlukan untuk menampilkan preview",
+            color = Color.Red,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
 }
